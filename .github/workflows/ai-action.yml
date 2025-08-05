@@ -14,7 +14,10 @@ env:
 jobs:
   summary:
     runs-on: ubuntu-latest
-    permissions: write-all
+    permissions:
+      issues: write
+      models: read
+      contents: read
     
     steps:
       - name: ✈️ Checkout repository
