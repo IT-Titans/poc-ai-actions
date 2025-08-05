@@ -34,18 +34,31 @@ jobs:
         # Git Documentation: https://git-scm.com/docs/git-diff
         run: |
           git --no-pager diff ${{ github.event.pull_request.base.ref }} >> $PROMPT_FILE
-      
+
+      - name: 🎁 Upload prompt file
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.PROMPT_FILE }}
+          path: ${{ env.PROMPT_FILE }}
+          
       - name: ❓ Ask the AI for Help with the Review
         # Action Documentation: https://github.com/actions/ai-inference
         id: inference
         uses: actions/ai-inference@v1
         with:
           prompt-file: ${{ env.PROMPT_FILE }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 📄 Create comment file
         # Put the response into a file so we won't have as many problems with symbols
         run: |
           echo "${{ steps.inference.outputs.response }}" > $COMMENT_FILE
+
+      - name: 🎁 Upload comment file
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.COMMENT_FILE }}
+          path: ${{ env.COMMENT_FILE }}
 
       - name: 👄 Comment with AI summary
         # GitHub CLI: https://cli.github.com/manual/gh_issue_comment
