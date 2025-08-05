@@ -37,24 +37,12 @@ jobs:
         run: |
           git --no-pager diff ${{ github.event.pull_request.base.ref }} >> $PROMPT_FILE
 
-      - name: 🎁 Upload prompt file
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.PROMPT_FILE }}
-          path: ${{ env.PROMPT_FILE }}
-
       - name: ❓ Ask the AI for Help with the Review
         # Action Documentation: https://github.com/actions/ai-inference
         id: inference
         uses: actions/ai-inference@v1
         with:
           prompt-file: ${{ env.PROMPT_FILE }}
-
-      - name: 🎁 Upload comment file
-        uses: actions/upload-artifact@v4
-        with:
-          name: comment.txt
-          path: ${{ steps.inference.outputs.response-file }}
 
       - name: 👄 Comment with AI summary
         # GitHub CLI: https://cli.github.com/manual/gh_issue_comment
