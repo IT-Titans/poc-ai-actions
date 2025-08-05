@@ -28,6 +28,6 @@ _This file contains the entire answer of the AI._
       - name: 🎁 Upload comment file
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.COMMENT_FILE }}
-          path: ${{ env.COMMENT_FILE }}
+          name: comment.txt
+          path: ${{ steps.inference.outputs.response-file }}
 ```
