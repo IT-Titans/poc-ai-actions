@@ -6,6 +6,7 @@ on:
     branches: [ "**" ]
 
 env:
+  ACTIONS_STEP_DEBUG: true
   # This file is created by this action and used by it exclusively
   PROMPT_FILE: prompt.txt
 
