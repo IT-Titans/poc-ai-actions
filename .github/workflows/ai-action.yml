@@ -15,9 +15,10 @@ jobs:
   summary:
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       issues: write
       models: read
-      contents: read
+      pull-requests: write
     
     steps:
       - name: ✈️ Checkout repository
@@ -43,7 +44,7 @@ jobs:
         with:
           name: ${{ env.PROMPT_FILE }}
           path: ${{ env.PROMPT_FILE }}
-          
+
       - name: ❓ Ask the AI for Help with the Review
         # Action Documentation: https://github.com/actions/ai-inference
         id: inference
