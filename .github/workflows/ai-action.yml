@@ -6,7 +6,6 @@ on:
     branches: [ "**" ]
 
 env:
-  ACTIONS_STEP_DEBUG: true
   # This file is created by this action and used by it exclusively
   PROMPT_FILE: prompt.txt
 
@@ -50,11 +49,6 @@ jobs:
         uses: actions/ai-inference@v1
         with:
           prompt-file: ${{ env.PROMPT_FILE }}
-
-      - name: 📄 Create comment file
-        # Put the response into a file so we won't have as many problems with symbols
-        run: |
-          echo "${{ steps.inference.outputs.response }}" > $COMMENT_FILE
 
       - name: 🎁 Upload comment file
         uses: actions/upload-artifact@v4
