@@ -1,0 +1,55 @@
+name: Call AI to do a Review
+
+on:
+  # This pull request will be compared to the branch it is based on
+  pull_request:
+    branches: [ "**" ]
+
+env:
+  # This file is created by this action and used by it exclusively
+  PROMPT_FILE: prompt.txt
+  # This file, too
+  COMMENT_FILE: comment.txt
+
+jobs:
+  summary:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    
+    steps:
+      - name: ✈️ Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Fix branch to compare to
+        # Fixes "unknown revision" for the target branch, see: https://stackoverflow.com/a/77960878/3482793
+        run: |
+          git rev-parse --verify ${{ github.event.pull_request.base.ref }} || git remote set-branches origin ${{ github.event.pull_request.base.ref }} && git fetch --depth 1 origin ${{ github.event.pull_request.base.ref }} && git branch ${{ github.event.pull_request.base.ref }} origin/${{ github.event.pull_request.base.ref }}
+
+      - name: ✨ Create prompt file
+        # You can change the prompt here, if you want the AI to do something special
+        run: |
+          echo -e "You are a developer reviewing the pull request of a colleague. Find general problems and comment them. Be brief. Do nothing if you can't find problems. If your response would be empty otherwise, just say 'Good job!'. Never use the symbol '\n\nGit Differences:\n\n" > $PROMPT_FILE
+
+      - name: 📝 Append all the differences to the prompt
+        # Git Documentation: https://git-scm.com/docs/git-diff
+        run: |
+          git --no-pager diff ${{ github.event.pull_request.base.ref }} >> $PROMPT_FILE
+      
+      - name: ❓ Ask the AI for Help with the Review
+        # Action Documentation: https://github.com/actions/ai-inference
+        id: inference
+        uses: actions/ai-inference@v1
+        with:
+          prompt-file: ${{ env.PROMPT_FILE }}
+
+      - name: 📄 Create comment file
+        # Put the response into a file so we won't have as many problems with symbols
+        run: |
+          echo "${{ steps.inference.outputs.response }}" > $COMMENT_FILE
+
+      - name: 👄 Comment with AI summary
+        # GitHub CLI: https://cli.github.com/manual/gh_issue_comment
+        run: |
+          gh issue comment ${{ github.event.number }} --body-file  ${{ env.COMMENT_FILE }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
